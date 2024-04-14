@@ -9,7 +9,7 @@ import {
   User,
   Revenue,
 } from './definitions';
-import { formatCurrency } from './utils';
+import { formatCurrency, wait } from './utils';
 
 export async function fetchRevenue() {
   // Add noStore() here to prevent the response from being cached.
@@ -17,7 +17,15 @@ export async function fetchRevenue() {
   noStore(() => sql<Revenue>`SELECT * FROM revenue`);
 
   try {
+    // Artificially delay a response for demo purposes.
+    // Don't do this in production :)
+
+    // console.log('Fetching revenue data...');
+    // await wait(3);
+
     const data = await sql<Revenue>`SELECT * FROM revenue`;
+
+    // console.log('Data fetch completed after 3 seconds.');
 
     return data.rows;
   } catch (error) {
@@ -28,12 +36,15 @@ export async function fetchRevenue() {
 
 export async function fetchLatestInvoices() {
   try {
+    // console.log('Fetching latest invoices data...');
+    // await wait(2);
     const data = await sql<LatestInvoiceRaw>`
       SELECT invoices.amount, customers.name, customers.image_url, customers.email, invoices.id
       FROM invoices
       JOIN customers ON invoices.customer_id = customers.id
       ORDER BY invoices.date DESC
       LIMIT 5`;
+    // console.log('Data fetch completed after 2 seconds.');
 
     const latestInvoices = data.rows.map((invoice) => ({
       ...invoice,
@@ -58,11 +69,14 @@ export async function fetchCardData() {
          SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) AS "pending"
          FROM invoices`;
 
+    // await wait(1);
     const data = await Promise.all([
       invoiceCountPromise,
       customerCountPromise,
       invoiceStatusPromise,
     ]);
+
+    // console.log('Data fetch completed after 1 seconds.');
 
     const numberOfInvoices = Number(data[0].rows[0].count ?? '0');
     const numberOfCustomers = Number(data[1].rows[0].count ?? '0');
