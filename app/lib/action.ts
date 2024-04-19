@@ -33,7 +33,7 @@ const FormSchema = z.object({
 const CreateInvoice = FormSchema.omit({ id: true, date: true });
 const UpdateInvoice = FormSchema.omit({ id: true, date: true });
 
-export async function authticate(
+export async function authenticate(
   prevState: string | undefined,
   formData: FormData,
 ) {
@@ -48,6 +48,7 @@ export async function authticate(
           return 'An unexpected error occurred';
       }
     }
+    throw error;
   }
 }
 
